@@ -127,6 +127,7 @@ switch(gamemode) {
       you = 0;
       them = 0;
       gamemode = 0;
+      break;
     }
     if (them > 10 && (them - you) > 1) {
       boo.stop();
@@ -136,6 +137,7 @@ switch(gamemode) {
       you = 0;
       them = 0;
       gamemode = 0;
+      break;
     }
     
   // APPLY PHYSICS
@@ -288,7 +290,7 @@ switch(gamemode) {
       if (go < 1) {
         estimateone = 650;
       }
-      estimatetwo = shuttX - ((adjVel * cos(theta) / gravity) * ((adjVel * sin(theta)) + termtwo)) + 5;
+      estimatetwo = shuttX - ((adjVel * cos(theta) / gravity) * ((adjVel * sin(theta)) + termtwo)) - 10;
       counter = 0;
     }
     if (estimateone) {
@@ -369,7 +371,7 @@ void mouseReleased() {
 }
 
 void resetGame(int server) {
-    Apos = 100.0;
+    Apos = constrain(mouseX, 30, 450);
     Arot = -50;
     Aforehand = false;
     Abackhand = false;
@@ -378,10 +380,10 @@ void resetGame(int server) {
     Bforehand = false;
     Bbackhand = false;
     if (server) {
-      shuttX = 780;
+      shuttX = 780 + random(-50, 50);
       go = 1;
     } else {
-      shuttX = 200;
+      shuttX = 200 + random(-50, 50);
       go = 0;
     }
     shuttDX = 0;
