@@ -1,7 +1,7 @@
 var fs = require('fs');
 var express = require('express');
 
-var app = express.createServer(express.static(__dirname + '/LudicrousBadminton');
+var app = express.createServer(express.static(__dirname + '/LudicrousBadminton'));
 
 app.get('/', function(request, response) {
   response.send(fs.readFileSync('LudicrousBadminton.html').toString());
