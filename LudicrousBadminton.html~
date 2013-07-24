@@ -10,7 +10,7 @@
 </head>
 
 <body>
-	<canvas data-processing-sources="/LudicrousBadminton.pde" id="MY-CANVAS"></canvas>	
+	<canvas data-processing-sources="LudicrousBadminton.pde" id="MY-CANVAS"></canvas>	
 </body>
 
 </html>
