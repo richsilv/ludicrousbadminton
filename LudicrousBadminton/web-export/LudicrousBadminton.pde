@@ -94,7 +94,7 @@ switch(gamemode) {
     image(frontpage, width/2, height/2, 750, 380);
     
     if (mousePressed == true) {
-       if (mouseX <= 467 && mouseX >= 279 && mouseY >= 319 && mouseY <= 405) {
+       if (mouseX <= 440 && mouseX >= 279 && mouseY >= 319 && mouseY <= 405) {
          gamemode = 2;
        }
        if (mouseX <= 708 && mouseX >= 530 && mouseY >= 323 && mouseY <= 409) {
@@ -106,10 +106,10 @@ switch(gamemode) {
   case 1:
   // This is the instructions screen
     image(court, width/2, height/2, width, height);
-    image(instructions, width/2, height/2, 680, 380);
+    image(instructions, width/2, height/2, 680, 400);
     
     if (mousePressed == true) {
-       if (mouseX <= 529 && mouseX >= 351 && mouseY >= 323 && mouseY <= 411) {
+       if (mouseX <= 529 && mouseX >= 351 && mouseY >= 333 && mouseY <= 421) {
          gamemode = 0;
        }
     }    
@@ -119,17 +119,23 @@ switch(gamemode) {
   // This is the actual game
   
   // CHECK IF GAME HAS BEEN WON
-    if (you == 11) {
+    if (you > 10 && (you - them) > 1) {
       cheer.stop();
       cheer.play();
       mil = millis();
       while (millis() - mil < 2000) {}
+      you = 0;
+      them = 0;
+      gamemode = 0;
     }
-    if (them == 11) {
+    if (them > 10 && (them - you) > 1) {
       boo.stop();
       boo.play();
       mil = millis();
       while (millis() - mil < 2000) {}
+      you = 0;
+      them = 0;
+      gamemode = 0;
     }
     
   // APPLY PHYSICS
@@ -212,6 +218,7 @@ switch(gamemode) {
           go += 1;
           hita.stop();
           hita.play();
+          nethit.stop();
         }
         if (Abackhand) {
           shuttDX = 75 * -cos(radians(Arot));
@@ -219,6 +226,7 @@ switch(gamemode) {
           go += 1;
           hitb.stop();
           hitb.play();
+          nethit.stop();
         }
       }
     }
@@ -234,6 +242,7 @@ switch(gamemode) {
           go -= 1;
           hita.stop();
           hita.play();
+          nethit.stop();
         }
         if (Bbackhand) {
           shuttDX = 75 * cos(radians(Brot));
@@ -241,13 +250,13 @@ switch(gamemode) {
           go -= 1 ;
           hitb.stop();
           hitb.play();
+          nethit.stop();
         }
       }
     }
     
     // net
     if (shuttY > height - 200 && shuttX > width/2 - 15 && shuttX < width/2 + 15) {
-      nethit.stop();
       nethit.play();
       if (shuttY < height - 193) {
         shuttDY = -0.6 * shuttDY;
@@ -383,6 +392,6 @@ void resetGame(int server) {
     shuttVel = 0;
     counter = 0;
     estimateone = 0;
-    estimatetwo = 0;    
+    estimatetwo = 0;
 }
 
