@@ -1,10 +1,10 @@
 var fs = require('fs');
 var express = require('express');
 
-var app = express.createServer(express.static(__dirname + '/LudicrousBadminton'));
+var app = express.createServer(express.static(__dirname));
 
 app.get('/', function(request, response) {
-  response.send(fs.readFileSync('LudicrousBadminton.html').toString());
+  response.send(fs.readFileSync('index.html').toString());
 });
 
 var port = process.env.PORT || 8080;
