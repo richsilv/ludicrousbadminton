@@ -28,8 +28,8 @@ underheightB = 325
 undercloseB = 10
 freqB = 10
 speedB = 5
-estoneadjustB = 0
-esttwoadjustB = -1
+estoneadjustB = -3
+esttwoadjustB = 0
 
 # GLOBALS
 Apos = 282.0

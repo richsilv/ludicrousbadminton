@@ -27,7 +27,7 @@ boolean hit = false;
 int counter = 0;
 float estimateone = 0;
 float estimatetwo = 0;
-float speed = 5;
+float speed = 7;
 int go = 0;
 int gamemode = 0;
 long mil = 0;
@@ -216,7 +216,7 @@ switch(gamemode) {
     float Adist = dist(Apos, 300, shuttX, shuttY);
     if (Adist > 40 && Adist < 90) {
       float tempang = degrees(atan2(shuttY-300, shuttX-Apos)) + 90;
-      if (abs(tempang - Arot) < 5.0) {
+      if (abs(tempang - Arot) <7.0) {
         if (Aforehand) {
           shuttDX = 75 * cos(radians(Arot));
           shuttDY = 75 * sin(radians(Arot));
@@ -240,7 +240,7 @@ switch(gamemode) {
     float Bdist = dist(Bpos, 300, shuttX, shuttY);
     if (Bdist > 40 && Bdist < 90) {
       float tempang = degrees(atan2(shuttY-300, shuttX-Bpos)) + 90;
-      if (abs(tempang - Brot) % 360 < 5.0) {
+      if (abs(tempang - Brot) % 360 < 7.0) {
         if (Bforehand) {
           shuttDX = 75 * -cos(radians(Brot));
           shuttDY = 75 * -sin(radians(Brot));
@@ -284,7 +284,7 @@ switch(gamemode) {
   // COMPUTER AI
     counter += 1;
     // only update AI calculations once every 10 frames (lower overhead, less jerky AI)
-    if (counter > 10) {
+    if (counter > 10 && !Bforehand && !Bbackhand) {
       // estimateone and estimatetwo essentially use standard differential-equation solutions for a projectile (with
       // no air resistance), and then crudely adjust them to account for the physics of a shuttlecock
       // estimateone is where the racket needs to be to hit overhead
@@ -300,10 +300,11 @@ switch(gamemode) {
         estimateone = 650;
       }
       estimatetwo = shuttX - ((adjVel * cos(theta) / gravity) * ((adjVel * sin(theta)) + termtwo)) - 10;
+      estimatetwo -= (shuttDX * 2);
       counter = 0;
     }
-    if (estimateone < 600) {
-      float smashadjust = 60;
+    if (estimateone < 700) {
+      float smashadjust = constrain((700 - estimateone)/3, 0, 60);
     } else {
       float smashadjust = 0;
     }
