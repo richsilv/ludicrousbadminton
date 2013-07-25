@@ -1,7 +1,6 @@
 //The MIT License (MIT) - See Licence.txt for details
 
-//Copyright (c) 2013 Mick Grierson, Matthew Yee-King, Marco Gillies
-
+// SET UP ALL VARIABLES
 Maxim maxim;
 AudioPlayer swinga, swingb, swingc, swingd, hita, hitb, nethit, floor, cheer, boo;
 
@@ -38,6 +37,7 @@ PImage court, net, shuttle, racone, ractwo, frontpage, instructions;
 int you = 0;
 int them = 0;
 
+// SET UP CANVAS AND LOAD SOUNDS AND IMAGES
 void setup() {
   size(982, 477);
   frameRate(framerate);
@@ -86,7 +86,10 @@ void setup() {
   imageMode(CENTER);
 }
 
+// MAIN LOOP
 void draw() {
+
+// JUMP TO SECTION DEPENDING ON GAME MODE (Welcome screen, Instructions, Game itself)
 switch(gamemode) {
   case 0:
   // This is the welcome screen
@@ -280,26 +283,43 @@ switch(gamemode) {
   
   // COMPUTER AI
     counter += 1;
+    // only update AI calculations once every 10 frames (lower overhead, less jerky AI)
     if (counter > 10) {
+      // estimateone and estimatetwo essentially use standard differential-equation solutions for a projectile (with
+      // no air resistance), and then crudely adjust them to account for the physics of a shuttlecock
+      // estimateone is where the racket needs to be to hit overhead
+      // estimatetwo is where the racket needs to be to hit underarm
       float theta = radians(90 - shuttAngle);
       float adjVel = pow(shuttVel, 0.7);
       float termone = sqrt(sq(adjVel * sin(theta)) + (2 * gravity * (200 - shuttY)));
       float termtwo = sqrt(sq(adjVel * sin(theta)) + (2 * gravity * (350 - shuttY)));
       estimateone = shuttX - ((adjVel * cos(theta) / gravity) * ((adjVel * sin(theta)) + termone)) - 30 - (5 * shuttDX);
       estimateone -= ((estimateone - 488) / 20);
+      // if it's not AI's turn, aim for the middle of the court
       if (go < 1) {
         estimateone = 650;
       }
       estimatetwo = shuttX - ((adjVel * cos(theta) / gravity) * ((adjVel * sin(theta)) + termtwo)) - 10;
       counter = 0;
     }
+    if (estimateone < 600) {
+      float smashadjust = 60;
+    } else {
+      float smashadjust = 0;
+    }
+    // if estimateone exists, it means the AI thinks it can get in position to hit overhead, so move in that
+    // direction at maximum speed given by speed variable
+    // otherwise, move towards the position for an underarm shot
     if (estimateone) {
-      Bpos += constrain(estimateone - Bpos, -speed, speed);
+      Bpos += constrain(estimateone - Bpos + smashadjust, -speed, speed);
     } else if (estimatetwo) {
       Bpos += constrain(estimatetwo - Bpos, -speed, speed);
     }
+    // make sure AI racquet stays within its court
     Bpos = constrain(Bpos, 500, 965);
-    if (estimateone && abs(estimateone - Bpos) < 10 && abs(shuttX - Bpos) < 75 && shuttY > 220 && !Bforehand) {
+    // if the AI thinks it's in a good position for a overhead shot, swing overhead
+    // otherwise, if it thinks it might be in a good position for an underarm, do that (less exact)
+    if (estimateone && abs(estimateone - Bpos + smashadjust) < 10 && abs(shuttX - Bpos) < 75 && shuttY > (220 - smashadjust) && !Bforehand) {
       Bforehand = true;
       swingd.stop();
       swingd.play();
@@ -343,6 +363,7 @@ switch(gamemode) {
 }
 
 void mousePressed() {
+  // swing if mouse button pressed and you're not swinging already
   if (mouseButton == RIGHT) {
     if (!Aforehand && !Abackhand) {
       Abackhand = true;
@@ -360,16 +381,14 @@ void mousePressed() {
   }
 }
 
+// Testing utility
 void keyPressed() {
   if (int(key) == 114) {
     resetGame(0);
   }
 }
 
-void mouseReleased() {
-
-}
-
+// RESET GAME WHEN A POINT ENDS GIVEN NEW SERVER
 void resetGame(int server) {
     Apos = constrain(mouseX, 30, 450);
     Arot = -50;
