@@ -24,9 +24,12 @@ float airresist = 0.005;
 int shuttSize = 40;
 int framerate = 60;
 boolean hit = false;
-int counter = 0;
-float estimateone = 0;
-float estimatetwo = 0;
+int counterA = 0;
+float estimateoneA = 0;
+float estimatetwoA = 0;
+int counterB = 0;
+float estimateoneB = 0;
+float estimatetwoB = 0;
 float speed = 5;
 int go = 0;
 int gamemode = 0;
@@ -147,7 +150,6 @@ switch(gamemode) {
     shuttX = shuttX + shuttDX;
     shuttY = shuttY + shuttDY;
     shuttDY += gravity;
-    Apos = constrain(mouseX, 30, 450);
     
   // KEEP SHUTTLE POINTING THE RIGHT WAY (UNLESS IT'S ALMOST STOPPED)
     shuttDir = degrees(atan2(shuttDY, shuttDX))-90;
@@ -282,48 +284,96 @@ switch(gamemode) {
     }
   
   // COMPUTER AI
-    counter += 1;
+    counterA += 1;
     // only update AI calculations once every 10 frames (lower overhead, less jerky AI)
-    if (counter > 10) {
-      // estimateone and estimatetwo essentially use standard differential-equation solutions for a projectile (with
+    if (counterA > 10) {
+      // estimateoneB and estimatetwoB essentially use standard differential-equation solutions for a projectile (with
       // no air resistance), and then crudely adjust them to account for the physics of a shuttlecock
-      // estimateone is where the racket needs to be to hit overhead
-      // estimatetwo is where the racket needs to be to hit underarm
+      // estimateoneB is where the racket needs to be to hit overhead
+      // estimatetwoB is where the racket needs to be to hit underarm
       float theta = radians(90 - shuttAngle);
       float adjVel = pow(shuttVel, 0.7);
       float termone = sqrt(sq(adjVel * sin(theta)) + (2 * gravity * (200 - shuttY)));
       float termtwo = sqrt(sq(adjVel * sin(theta)) + (2 * gravity * (350 - shuttY)));
-      estimateone = shuttX - ((adjVel * cos(theta) / gravity) * ((adjVel * sin(theta)) + termone)) - 27 - (5 * shuttDX);
-      estimateone -= ((estimateone - 488) / 20);
+      estimateoneA = shuttX - ((adjVel * cos(theta) / gravity) * ((adjVel * sin(theta)) + termone)) + 25 - (5 * shuttDX);
+      estimateoneA -= ((estimateoneA - 491) / 20);
       // if it's not AI's turn, aim for the middle of the court
-      if (go < 1) {
-        estimateone = 650;
+      if (go > 0) {
+        estimateoneA = 332;
       }
-      estimatetwo = shuttX - ((adjVel * cos(theta) / gravity) * ((adjVel * sin(theta)) + termtwo)) - 10;
-      counter = 0;
+      estimatetwoA = shuttX - ((adjVel * cos(theta) / gravity) * ((adjVel * sin(theta)) + termtwo)) + 10;
+      counterA = 0;
     }
-    if (estimateone < 600) {
-      float smashadjust = 60;
+    if (estimateoneA > 382) {
+      float smashadjustA = 60;
     } else {
-      float smashadjust = 0;
+      float smashadjustA = 0;
     }
-    // if estimateone exists, it means the AI thinks it can get in position to hit overhead, so move in that
+    // if estimateoneB exists, it means the AI thinks it can get in position to hit overhead, so move in that
     // direction at maximum speed given by speed variable
     // otherwise, move towards the position for an underarm shot
-    if (estimateone) {
-      Bpos += constrain(estimateone - Bpos + smashadjust, -speed, speed);
-    } else if (estimatetwo) {
-      Bpos += constrain(estimatetwo - Bpos, -speed, speed);
+    if (estimateoneA) {
+      Apos += constrain(estimateoneA - Apos - smashadjustA, -speed, speed);
+    } else if (estimatetwoA) {
+      Apos += constrain(estimatetwoA - Apos, -speed, speed);
+    }
+    // make sure AI racquet stays within its court
+    Apos = constrain(Apos, 17, 482);
+    // if the AI thinks it's in a good position for a overhead shot, swing overhead
+    // otherwise, if it thinks it might be in a good position for an underarm, do that (less exact)
+    if (estimateoneA && abs(estimateoneA - Apos - smashadjustA) < 10 && abs(shuttX - Apos) < 75 && shuttY > (227 - smashadjustA) && !Aforehand) {
+      Aforehand = true;
+      swingd.stop();
+      swingd.play();
+    } else if (estimatetwoA && abs(estimatetwoA - Apos) < 25 && shuttY > 325 && !Abackhand) {
+      Abackhand = true;
+      Arot = 170;
+      swingc.stop();
+      swingc.play();
+    }
+
+    counterB += 1;
+    // only update AI calculations once every 10 frames (lower overhead, less jerky AI)
+    if (counterB > 10) {
+      // estimateoneB and estimatetwoB essentially use standard differential-equation solutions for a projectile (with
+      // no air resistance), and then crudely adjust them to account for the physics of a shuttlecock
+      // estimateoneB is where the racket needs to be to hit overhead
+      // estimatetwoB is where the racket needs to be to hit underarm
+      float theta = radians(90 - shuttAngle);
+      float adjVel = pow(shuttVel, 0.7);
+      float termone = sqrt(sq(adjVel * sin(theta)) + (2 * gravity * (200 - shuttY)));
+      float termtwo = sqrt(sq(adjVel * sin(theta)) + (2 * gravity * (350 - shuttY)));
+      estimateoneB = shuttX - ((adjVel * cos(theta) / gravity) * ((adjVel * sin(theta)) + termone)) - 30 - (5 * shuttDX);
+      estimateoneB -= ((estimateoneB - 491) / 20);
+      // if it's not AI's turn, aim for the middle of the court
+      if (go < 1) {
+        estimateoneB = 650;
+      }
+      estimatetwoB = shuttX - ((adjVel * cos(theta) / gravity) * ((adjVel * sin(theta)) + termtwo)) - 10;
+      counterB = 0;
+    }
+    if (estimateoneB < 600) {
+      float smashadjustB = 60;
+    } else {
+      float smashadjustB = 0;
+    }
+    // if estimateoneB exists, it means the AI thinks it can get in position to hit overhead, so move in that
+    // direction at maximum speed given by speed variable
+    // otherwise, move towards the position for an underarm shot
+    if (estimateoneB) {
+      Bpos += constrain(estimateoneB - Bpos + smashadjustB, -speed, speed);
+    } else if (estimatetwoB) {
+      Bpos += constrain(estimatetwoB - Bpos, -speed, speed);
     }
     // make sure AI racquet stays within its court
     Bpos = constrain(Bpos, 500, 965);
     // if the AI thinks it's in a good position for a overhead shot, swing overhead
     // otherwise, if it thinks it might be in a good position for an underarm, do that (less exact)
-    if (estimateone && abs(estimateone - Bpos + smashadjust) < 10 && abs(shuttX - Bpos) < 75 && shuttY > (224 - smashadjust) && !Bforehand) {
+    if (estimateoneB && abs(estimateoneB - Bpos + smashadjustB) < 10 && abs(shuttX - Bpos) < 75 && shuttY > (220 - smashadjustB) && !Bforehand) {
       Bforehand = true;
       swingd.stop();
       swingd.play();
-    } else if (estimatetwo && abs(estimatetwo - Bpos) < 25 && shuttY > 325 && !Bbackhand) {
+    } else if (estimatetwoB && abs(estimatetwoB - Bpos) < 25 && shuttY > 325 && !Bbackhand) {
       Bbackhand = true;
       Brot = -190;
       swingc.stop();
@@ -362,25 +412,6 @@ switch(gamemode) {
   }
 }
 
-void mousePressed() {
-  // swing if mouse button pressed and you're not swinging already
-  if (mouseButton == RIGHT) {
-    if (!Aforehand && !Abackhand) {
-      Abackhand = true;
-      swinga.stop();
-      swinga.play();
-      Arot = 170;      
-    }
-  }
-  else {
-    if (!Aforehand && !Abackhand) {
-      Aforehand = true;
-      swingb.stop();
-      swingb.play();
-    }
-  }
-}
-
 // Testing utility
 void keyPressed() {
   if (int(key) == 114) {
@@ -411,8 +442,8 @@ void resetGame(int server) {
     shuttAngle = 0;
     shuttDir = 0;
     shuttVel = 0;
-    counter = 0;
-    estimateone = 0;
-    estimatetwo = 0;
+    counterB = 0;
+    estimateoneB = 0;
+    estimatetwoB = 0;
 }
 

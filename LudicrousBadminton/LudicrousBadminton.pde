@@ -293,7 +293,7 @@ switch(gamemode) {
       float adjVel = pow(shuttVel, 0.7);
       float termone = sqrt(sq(adjVel * sin(theta)) + (2 * gravity * (200 - shuttY)));
       float termtwo = sqrt(sq(adjVel * sin(theta)) + (2 * gravity * (350 - shuttY)));
-      estimateone = shuttX - ((adjVel * cos(theta) / gravity) * ((adjVel * sin(theta)) + termone)) - 30 - (5 * shuttDX);
+      estimateone = shuttX - ((adjVel * cos(theta) / gravity) * ((adjVel * sin(theta)) + termone)) - 27 - (5 * shuttDX);
       estimateone -= ((estimateone - 488) / 20);
       // if it's not AI's turn, aim for the middle of the court
       if (go < 1) {
@@ -319,7 +319,7 @@ switch(gamemode) {
     Bpos = constrain(Bpos, 500, 965);
     // if the AI thinks it's in a good position for a overhead shot, swing overhead
     // otherwise, if it thinks it might be in a good position for an underarm, do that (less exact)
-    if (estimateone && abs(estimateone - Bpos + smashadjust) < 10 && abs(shuttX - Bpos) < 75 && shuttY > (220 - smashadjust) && !Bforehand) {
+    if (estimateone && abs(estimateone - Bpos + smashadjust) < 10 && abs(shuttX - Bpos) < 75 && shuttY > (224 - smashadjust) && !Bforehand) {
       Bforehand = true;
       swingd.stop();
       swingd.play();
